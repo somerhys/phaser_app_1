@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+    <!-- This is a wide open CSP declaration. To lock this down for production, see below. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
+    <!-- Good default declaration:
+    * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+    * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+    * Disables use of eval() and inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+        * Enable inline JS: add 'unsafe-inline' to default-src
+        * Enable eval(): add 'unsafe-eval' to default-src
+    * Create your own at http://cspisawesome.com
+    -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com; style-src 'self' 'unsafe-inline'; media-src *" /> -->
+
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <title>hello phaser!</title>
+        <script src="//cdn.jsdelivr.net/phaser/2.5.0/phaser.min.js"></script>
+    </head>
+    <body>
+
+    <script type="text/javascript">
+
+    window.onload = function() {
+
+        //  Note that this html file is set to pull down Phaser 2.5.0 from the JS Delivr CDN.
+        //  Although it will work fine with this tutorial, it's almost certainly not the most current version.
+        //  Be sure to replace it with an updated version before you start experimenting with adding your own code.
+
+        
+var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+
+function preload() {
+
+    game.load.image('stars', 'assets/starfield1.jpg');
+    game.load.spritesheet('ship', 'assets/sheet1.png', 32, 32);
+    game.load.image('ball', 'assets/asteroid1.png');
+
+}
+
+var ship;
+var starfield;
+var cursors;
+
+function create() {
+
+    game.world.setBounds(0, 0, 1600, 1200);
+
+    game.physics.startSystem(Phaser.Physics.P2JS);
+    game.physics.p2.defaultRestitution = 0.9;
+
+    starfield = game.add.tileSprite(0, 0, 800, 600, 'stars');
+    starfield.fixedToCamera = true;
+
+    balls = game.add.group();
+    balls.enableBody = true;
+    balls.physicsBodyType = Phaser.Physics.P2JS;
+
+    for (var i = 0; i < 50; i++)
+    {
+        var ball = balls.create(game.world.randomX, game.world.randomY, 'ball');
+        ball.body.setCircle(16);
+    }
+
+	ship = game.add.sprite(200, 200, 'ship');
+    ship.scale.set(2);
+    ship.smoothed = false;
+    ship.animations.add('fly', [0,1,2,3,4,5], 10, true);
+    ship.play('fly');
+
+    //  Create our physics body - a 28px radius circle. Set the 'false' parameter below to 'true' to enable debugging
+	game.physics.p2.enable(ship, false);
+    ship.body.setCircle(28);
+
+	game.camera.follow(ship);
+
+    cursors = game.input.keyboard.createCursorKeys();
+
+}
+
+function update() {
+
+    ship.body.setZeroVelocity();
+
+    if (cursors.left.isDown)
+    {
+		ship.body.moveLeft(200);
+    }
+    else if (cursors.right.isDown)
+    {
+		ship.body.moveRight(200);
+    }
+
+    if (cursors.up.isDown)
+    {
+    	ship.body.moveUp(200);
+    }
+    else if (cursors.down.isDown)
+    {
+        ship.body.moveDown(200);
+    }
+
+    if (!game.camera.atLimit.x)
+    {
+        starfield.tilePosition.x -= (ship.body.velocity.x * game.time.physicsElapsed);
+    }
+
+    if (!game.camera.atLimit.y)
+    {
+        starfield.tilePosition.y -= (ship.body.velocity.y * game.time.physicsElapsed);
+    }
+
+}
+
+function render() {
+
+}
+
+    };
+
+    </script>
+<script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
+    <script type="text/javascript">
+        app.initialize();
+    </script>
+    </body>
+</html>
